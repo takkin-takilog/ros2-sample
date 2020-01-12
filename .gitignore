@@ -1,5 +1,7 @@
 devel/
 logs/
+log/
+install/
 build/
 bin/
 lib/
@@ -25,9 +27,13 @@ devel_isolated/
 *.dox
 *.wikidoc
 
+# Ignore .eggs
+.eggs
+
 # eclipse stuff
 .project
 .cproject
+.pydevproject
 
 # qcreator stuff
 CMakeLists.txt.user
