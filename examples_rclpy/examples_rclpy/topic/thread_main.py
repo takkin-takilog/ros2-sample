@@ -1,6 +1,6 @@
 import rclpy
-from examples_rclpy.publisher import MinimalPublisher
-from examples_rclpy.subscriber import MinimalSubscriber
+from examples_rclpy.topic.publisher import MinimalPublisher
+from examples_rclpy.topic.subscriber import MinimalSubscriber
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.executors import MultiThreadedExecutor
 
