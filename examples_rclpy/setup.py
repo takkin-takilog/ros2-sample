@@ -20,10 +20,12 @@ setup(
     tests_require=['pytest'],
     entry_points={  # 実行コマンド名とその呼び出し先
         'console_scripts': [
-            'publisher = ' + package_name + '.publisher:main',
-            'subscriber = ' + package_name + '.subscriber:main',
-            'single_th = ' + package_name + '.thread_main:main_single',
-            'multi_th = ' + package_name + '.thread_main:main_multi',
+            'publisher = ' + package_name + '.topic.publisher:main',
+            'subscriber = ' + package_name + '.topic.subscriber:main',
+            'single_th = ' + package_name + '.topic.thread_main:main_single',
+            'multi_th = ' + package_name + '.topic.thread_main:main_multi',
+            'multi_thread_snd = ' + package_name + '.callback_group.multi_thread_snd:main',
+            'multi_thread_rcv = ' + package_name + '.callback_group.multi_thread_rcv:main',
         ],
     },
 )
