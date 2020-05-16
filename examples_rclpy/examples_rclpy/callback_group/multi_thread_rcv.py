@@ -17,19 +17,33 @@ class Reciever(Node):
     def __init__(self):
         super().__init__('multi_thread_reciver')
 
-        cb_grp_ree_01 = ReentrantCallbackGroup()
-
         # Set logger lebel
         self.logger = super().get_logger()
         self.logger.set_level(rclpy.logging.LoggingSeverity.INFO)
 
-        self.sub = self.create_subscription(msg_type=String,
-                                            topic='chatter',
-                                            callback=self.tpc_callback,
-                                            callback_group=cb_grp_ree_01)
+        # ========== マルチスレッドテスト１ ==========
+        cb_grp_ms_01 = ReentrantCallbackGroup()
+        # Topic Recieve
+        msg_type = String
+        topic = "tpc_grp01_ms_snd"
+        callback = self.on_tpc_grp01_ms_rcv
+        self.sub_grp01_ms = self.create_subscription(msg_type=msg_type,
+                                                     topic=topic,
+                                                     callback=callback,
+                                                     callback_group=cb_grp_ms_01)
+        # Topic Send
+        self.pub_grp01_ms = self.create_publisher(String, "tpc_grp01_ms_rcv")
+
+
+
+
+        # ========== マルチスレッドテスト２ ==========
+        cb_grp_ree_01 = MutuallyExclusiveCallbackGroup()
+        cb_grp_ree_02 = MutuallyExclusiveCallbackGroup()
+        cb_grp_ree_03 = MutuallyExclusiveCallbackGroup()
 
         # String型のchatterトピックを送信するpublisherの定義
-        self.pub = self.create_publisher(String, 'callback')
+        self.pub = self.create_publisher(String, 'tpc_test_rcv')
 
         self.srv01 = self.create_service(srv_type=AddTwoInts,
                                          srv_name="add_two_ints_01",
@@ -38,73 +52,62 @@ class Reciever(Node):
         self.srv02 = self.create_service(srv_type=AddTwoInts,
                                          srv_name="add_two_ints_02",
                                          callback=self.srv_callback02,
-                                         callback_group=cb_grp_ree_01)
+                                         callback_group=cb_grp_ree_02)
         self.srv03 = self.create_service(srv_type=AddTwoInts,
                                          srv_name="add_two_ints_03",
                                          callback=self.srv_callback03,
-                                         callback_group=cb_grp_ree_01)
+                                         callback_group=cb_grp_ree_03)
 
-    def get_time_now(self):
-        dtnow = dt.datetime.now()
-        return dtnow.strftime(Reciever.DT_FMT)
+        self.__dtstr = self.__get_time_now()
+
+    def on_tpc_grp01_ms_rcv(self, msg):
+        dtstr = self.__get_time_now() - self.__dtstr
+        self.logger.info("----- [%s]:[ms_grp01]TPC Rcv(%s) -----" % (dtstr, msg.data))
+        self.pub_grp01_ms.publish(msg)
 
     def srv_callback01(self, request, response):
 
-        dtstr = self.get_time_now()
+        dtstr = self.__get_time_now() - self.__dtstr
         self.logger.info("[%s]:Service01(%d): start" % (dtstr, request.a))
 
         sleep(1)
 
         response.sum = request.a
 
-        dtstr = self.get_time_now()
+        dtstr = self.__get_time_now() - self.__dtstr
         self.logger.info("[%s]:Service01(%d): End" % (dtstr, request.a))
 
         return response
 
     def srv_callback02(self, request, response):
 
-        dtstr = self.get_time_now()
+        dtstr = self.__get_time_now() - self.__dtstr
         self.logger.info("[%s]:Service02(%d): start" % (dtstr, request.a))
 
         sleep(1)
         response.sum = request.a
 
-        dtstr = self.get_time_now()
+        dtstr = self.__get_time_now() - self.__dtstr
         self.logger.info("[%s]:Service02(%d): End" % (dtstr, request.a))
 
         return response
 
     def srv_callback03(self, request, response):
 
-        dtstr = self.get_time_now()
+        dtstr = self.__get_time_now() - self.__dtstr
         self.logger.info("[%s]:Service03(%d): start" % (dtstr, request.a))
 
         sleep(1)
         response.sum = request.a
 
-        dtstr = self.get_time_now()
+        dtstr = self.__get_time_now() - self.__dtstr
         self.logger.info("[%s]:Service03(%d): End" % (dtstr, request.a))
 
         return response
 
-    def send_topic(self, arg):
-        msg = String()
-        msg.data = arg
-        # chatterトピックにmsgを送信
-        self.pub.publish(msg)
-
-    def tpc_callback(self, msg):
-
-        dtstr = self.get_time_now()
-        self.logger.info("[%s]:Topic    (%s): start" % (dtstr, msg.data))
-
-        sleep(1)
-
-        self.send_topic(msg.data)
-
-        dtstr = self.get_time_now()
-        self.logger.info("[%s]:Topic    (%s): end" % (dtstr, msg.data))
+    def __get_time_now(self):
+        dtnow = dt.datetime.now()
+        return dtnow
 
 
 def main(args=None):
@@ -122,6 +125,3 @@ def main(args=None):
 
     executor.shutdown()
     rcv.destroy_node()
-
-    #rclpy.spin(rcv)
-    rclpy.shutdown()
