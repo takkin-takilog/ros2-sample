@@ -13,7 +13,9 @@ class MinimalPublisher(Node):
                                  reliability=QoSReliabilityPolicy.RELIABLE)
 
         # String型のchatterトピックを送信するpublisherの定義
-        self.publisher = self.create_publisher(String, "chatter", qos_profile)
+        self.publisher = self.create_publisher(String,
+                                               "chatter",
+                                               qos_profile)
         # 送信周期毎にtimer_callbackを呼び出し（送信周期は0.5秒）
         self.timer = self.create_timer(0.5, self.timer_callback)
 
@@ -31,8 +33,15 @@ def main(args=None):
     rclpy.init(args=args)
     # minimal_publisherノードの作成
     minimal_publisher = MinimalPublisher()
-    # minimal_publisherノードの実行開始
-    rclpy.spin(minimal_publisher)
+
+    try:
+        # minimal_publisherノードの実行開始
+        rclpy.spin(minimal_publisher)
+    except KeyboardInterrupt:
+        pass
+
+    # ノードの破棄
+    minimal_publisher.destroy_node()
     # Pythonクライアントライブラリの終了
     rclpy.shutdown()
 

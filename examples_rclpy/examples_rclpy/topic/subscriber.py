@@ -27,7 +27,13 @@ class MinimalSubscriber(Node):
 def main(args=None):
     rclpy.init(args=args)
     minimal_subscriber = MinimalSubscriber()
-    rclpy.spin(minimal_subscriber)
+
+    try:
+        rclpy.spin(minimal_subscriber)
+    except KeyboardInterrupt:
+        pass
+
+    minimal_subscriber.destroy_node()
     rclpy.shutdown()
 
 
