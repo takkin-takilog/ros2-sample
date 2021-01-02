@@ -65,37 +65,37 @@ class Sender(Node):
         self.tpc_seq_itr = 0
         self.srv_seq_itr = 0
 
-        self.__dtstr = self.__get_time_now()
+        self._dtstr = self.__get_time_now()
 
     def __on_timeout_ms_grp01(self) -> None:
         self.cb_grp_ms_01_itr = self.cb_grp_ms_01_itr + 1
         msg = String()
         msg.data = str(self.cb_grp_ms_01_itr)
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("----- [%s]:[ms_grp01]TimeOut Start(%d) -----" % (dtstr, self.cb_grp_ms_01_itr))
 
         self.pub_grp01_ms.publish(msg)
 
         sleep(1)
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("----- [%s]:[ms_grp01]TimeOut End(%d) -----" % (dtstr, self.cb_grp_ms_01_itr))
 
     def on_tpc_grp01_ms_rcv(self, msg):
         # msgの中身を標準出力にログ
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("----- [%s]:[ms_grp01]TPC Rcv(%s) -----" % (dtstr, msg.data))
 
     def __on_timeout_ms_grp02(self) -> None:
         self.cb_grp_ms_02_itr = self.cb_grp_ms_02_itr + 1
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("----- [%s]:[ms_grp02]TimeOut Start(%d) -----" % (dtstr, self.cb_grp_ms_02_itr))
 
         self.__send_srv_request()
         sleep(1)
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("----- [%s]:[ms_grp02]TimeOut End(%d) -----" % (dtstr, self.cb_grp_ms_02_itr))
 
     def __send_srv_request(self):
@@ -109,26 +109,26 @@ class Sender(Node):
         self.future02 = self.cli02.call_async(req)
         self.future03 = self.cli03.call_async(req)
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("[%s]:Service Send(%d)" % (dtstr, self.srv_seq_itr))
 
     def background(self):
 
         if ((self.future01 is not None) and (self.future01.done())):
             rsp = self.future01.result()
-            dtstr = self.__get_time_now() - self.__dtstr
+            dtstr = self.__get_time_now() - self._dtstr
             self.logger.info("[%s]:Service01 Rcv(%d)" % (dtstr, rsp.sum))
             self.future01 = None
 
         if ((self.future02 is not None) and (self.future02.done())):
             rsp = self.future02.result()
-            dtstr = self.__get_time_now() - self.__dtstr
+            dtstr = self.__get_time_now() - self._dtstr
             self.logger.info("[%s]:Service02 Rcv(%d)" % (dtstr, rsp.sum))
             self.future02 = None
 
         if ((self.future03 is not None) and (self.future03.done())):
             rsp = self.future03.result()
-            dtstr = self.__get_time_now() - self.__dtstr
+            dtstr = self.__get_time_now() - self._dtstr
             self.logger.info("[%s]:Service03 Rcv(%d)" % (dtstr, rsp.sum))
             self.future03 = None
 

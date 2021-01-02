@@ -58,49 +58,49 @@ class Reciever(Node):
                                          callback=self.srv_callback03,
                                          callback_group=cb_grp_ree_03)
 
-        self.__dtstr = self.__get_time_now()
+        self._dtstr = self.__get_time_now()
 
     def on_tpc_grp01_ms_rcv(self, msg):
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("----- [%s]:[ms_grp01]TPC Rcv(%s) -----" % (dtstr, msg.data))
         self.pub_grp01_ms.publish(msg)
 
     def srv_callback01(self, request, response):
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("[%s]:Service01(%d): start" % (dtstr, request.a))
 
         sleep(1)
 
         response.sum = request.a
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("[%s]:Service01(%d): End" % (dtstr, request.a))
 
         return response
 
     def srv_callback02(self, request, response):
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("[%s]:Service02(%d): start" % (dtstr, request.a))
 
         sleep(1)
         response.sum = request.a
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("[%s]:Service02(%d): End" % (dtstr, request.a))
 
         return response
 
     def srv_callback03(self, request, response):
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("[%s]:Service03(%d): start" % (dtstr, request.a))
 
         sleep(1)
         response.sum = request.a
 
-        dtstr = self.__get_time_now() - self.__dtstr
+        dtstr = self.__get_time_now() - self._dtstr
         self.logger.info("[%s]:Service03(%d): End" % (dtstr, request.a))
 
         return response
