@@ -30,6 +30,10 @@ setup(
             'async_service_client = ' + package_name + '.service.async_client:main',
             'async_action_server = ' + package_name + '.action.async_server:main',
             'async_action_client = ' + package_name + '.action.async_client:main',
+
+            'spin = ' + package_name + '.spin.spin:main_spin',
+            'spin_once = ' + package_name + '.spin.spin:main_spin_once',
+
         ],
     },
 )
