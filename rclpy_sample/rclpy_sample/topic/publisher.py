@@ -33,6 +33,7 @@ def main(args=None):
     rclpy.init(args=args)
     # minimal_publisherノードの作成
     minimal_publisher = MinimalPublisher()
+    minimal_publisher.get_logger().info("minimal_publisher start!")
 
     try:
         # minimal_publisherノードの実行開始
@@ -44,7 +45,3 @@ def main(args=None):
     minimal_publisher.destroy_node()
     # Pythonクライアントライブラリの終了
     rclpy.shutdown()
-
-
-if __name__ == "__main__":
-    main()

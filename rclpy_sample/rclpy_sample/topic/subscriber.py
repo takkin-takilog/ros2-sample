@@ -27,15 +27,21 @@ class MinimalSubscriber(Node):
 def main(args=None):
     rclpy.init(args=args)
     minimal_subscriber = MinimalSubscriber()
+    minimal_subscriber.get_logger().info("minimal_subscriber start!")
 
     try:
         rclpy.spin(minimal_subscriber)
     except KeyboardInterrupt:
         pass
 
+    """
+    try:
+        while rclpy.ok():
+            rclpy.spin_once(minimal_subscriber, timeout_sec=10.0)
+            minimal_subscriber.get_logger().info("spin_once timeout!")
+    except KeyboardInterrupt:
+        pass
+    """
+
     minimal_subscriber.destroy_node()
     rclpy.shutdown()
-
-
-if __name__ == "__main__":
-    main()
