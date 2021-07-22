@@ -33,6 +33,8 @@ setup(
             'spin = ' + package_name + '.spin.spin:main_spin',
             'spin_once = ' + package_name + '.spin.spin:main_spin_once',
             'timer = ' + package_name + '.timer.timer:main',
+            'queue_server = ' + package_name + '.queue.queue_server:main',
+            'queue_client = ' + package_name + '.queue.queue_client:main',
         ],
     },
 )
