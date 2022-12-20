@@ -1,27 +1,62 @@
-from example_interfaces.srv import AddTwoInts
+import time
 import rclpy
 from rclpy.node import Node
+from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
+from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
+from example_interfaces.srv import AddTwoInts
 
 
 class AsyncServiceClient(Node):
+    """Async service-client node"""
 
     def __init__(self):
-        super().__init__('async_service_client')
+        super().__init__("async_service_client")
         self.logger = self.get_logger()
 
-        self._cli = self.create_client(AddTwoInts, 'add_two_ints')
+        self._mutua_cb_grp_01 = MutuallyExclusiveCallbackGroup()
+        self._mutua_cb_grp_02 = MutuallyExclusiveCallbackGroup()
+        # self._reent_cb_grp_01 = ReentrantCallbackGroup()
+
+        # ----- Create service-client -----
+        self._cli = self.create_client(
+            AddTwoInts, "add_two_ints", callback_group=self._mutua_cb_grp_01
+        )
         while not self._cli.wait_for_service(timeout_sec=1.0):
-            self.logger.info('service not available, waiting again...')
-        self.future = None
-        self.req = AddTwoInts.Request()
+            self.logger.info("service not available, waiting again...")
+        self._future = None
 
-        self.logger.info('----- [action_client]Start! -----')
+        # ----- Create timer -----
+        self._timer01 = self.create_timer(
+            1.0, self._on_timeout, callback_group=self._mutua_cb_grp_02
+        )
 
-    def send_request(self):
-        self.req.a = 41
-        self.req.b = 1
-        self.future = self._cli.call_async(self.req)
-        self.logger.info('----- [service_client] Request! -----')
+        self._init_a = 0
+        self._counter = 0
+        self._start_time = time.time()
+
+        self.logger.info("[service-client] Start")
+
+    def _send_request(self):
+        req = AddTwoInts.Request()
+        req.a = self._init_a
+        req.b = 1
+        self._future = self._cli.call_async(req)
+        self._init_a += 1
+        self.logger.info(
+            "<{:.2f}>[service-client] Request(a={}, b={})".format(
+                self._get_elapsed_time(), req.a, req.b
+            )
+        )
+
+    def _on_timeout(self) -> None:
+        self.logger.info(
+            "<{:.2f}>[timeout](cnt={})".format(self._get_elapsed_time(), self._counter)
+        )
+        self._send_request()
+        self._counter += 1
+
+    def _get_elapsed_time(self):
+        return time.time() - self._start_time
 
 
 def main(args=None):
@@ -29,18 +64,11 @@ def main(args=None):
     rclpy.init(args=args)
     srv_cli = AsyncServiceClient()
 
+    executor = MultiThreadedExecutor()
+    # executor = SingleThreadedExecutor()
+
     try:
-        while rclpy.ok():
-            rclpy.spin_once(srv_cli, timeout_sec=0.1)
-            if srv_cli.future is None:
-                srv_cli.send_request()
-            else:
-                if srv_cli.future.done():
-                    rsp = srv_cli.future.result()
-                    srv_cli.get_logger().info(
-                        'Result of add_two_ints: for %d + %d = %d' %
-                        (srv_cli.req.a, srv_cli.req.b, rsp.sum))
-                    srv_cli.future = None
+        rclpy.spin(srv_cli, executor)
     except KeyboardInterrupt:
         pass
 
