@@ -94,7 +94,7 @@ def main(args=None):
     # executor = SingleThreadedExecutor()
 
     try:
-        rclpy.spin(srv_srv, executor=executor)
+        rclpy.spin(srv_srv, executor)
     except KeyboardInterrupt:
         pass
 
